@@ -107,53 +107,68 @@
         
         .seats-container {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
             width: 100%;
+            padding: 10px;
         }
         
         .seat {
             width: 100%;
-            height: 0;
-            padding-bottom: 100%; /* Makes height responsive based on width */
-            border: 2px solid #1e3a8a;
-            border-radius: 10px;
             position: relative;
             cursor: pointer;
-            background-color: #dbeafe;
-            font-weight: bold;
             transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
         }
         
         .seat:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .seat-icon {
+            width: 28px;
+            height: 28px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-bottom: 3px;
+            transition: all 0.3s;
+        }
+        
+        .seat.available .seat-icon,
+        .seat.booked .seat-icon,
+        .seat.selected .seat-icon {
+            width: 28px;
+            height: 28px;
+        }
+        
+        .seat.available .seat-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231e3a8a"><path d="M4 18v3h3v-3h10v3h3v-6H4v3zm15-8h3v3h-3v-3zM2 10h3v3H2v-3zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v8z"/></svg>');
+        }
+        
+        .seat.selected .seat-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2310b981"><path d="M4 18v3h3v-3h10v3h3v-6H4v3zm15-8h3v3h-3v-3zM2 10h3v3H2v-3zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v8z"/></svg>');
+        }
+        
+        .seat.booked .seat-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ef4444"><path d="M4 18v3h3v-3h10v3h3v-6H4v3zm15-8h3v3h-3v-3zM2 10h3v3H2v-3zm15 3H7V5c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2v8z"/></svg>');
         }
         
         .seat-number {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #475569;
         }
         
-        .seat.selected {
-            background-color: #10b981;
-            color: white;
-            border-color: #059669;
+        .seat.selected .seat-number {
+            color: #10b981;
         }
         
-        .seat.booked {
-            background-color: #ef4444;
-            color: white;
-            border-color: #dc2626;
-            cursor: not-allowed;
+        .seat.booked .seat-number {
+            color: #ef4444;
         }
         
         .seat-row {
@@ -308,25 +323,31 @@
         }
         
         .seat-demo {
-            width: 25px;
-            height: 25px;
-            margin-right: 10px;
-            border-radius: 5px;
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .available,
+        .selected-demo,
+        .booked-demo {
+            width: 24px;
+            height: 24px;
         }
         
         .available {
-            background-color: #dbeafe;
-            border: 1px solid #1e3a8a;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231e3a8a"><path d="M19 7V4H5v3H2v13h8v-4h4v4h8V7h-3zm-8 3H7V6h4v4zm6 0h-4V6h4v4z"/></svg>');
         }
         
         .selected-demo {
-            background-color: #10b981;
-            border: 1px solid #059669;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2310b981"><path d="M19 7V4H5v3H2v13h8v-4h4v4h8V7h-3zm-8 3H7V6h4v4zm6 0h-4V6h4v4z"/></svg>');
         }
         
         .booked-demo {
-            background-color: #ef4444;
-            border: 1px solid #dc2626;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ef4444"><path d="M19 7V4H5v3H2v13h8v-4h4v4h8V7h-3zm-8 3H7V6h4v4zm6 0h-4V6h4v4z"/></svg>');
         }
         
         .summary {
@@ -422,7 +443,7 @@
             
             .seats-container {
                 grid-template-columns: repeat(4, 1fr);
-                gap: 10px;
+                grid-gap: 10px 20px;
             }
             
             .feature-list {
@@ -450,7 +471,7 @@
             
             .driver-area {
                 height: 40px;
-                margin-bottom: 10px;
+                margin-bottom: 30px;
             }
             
             .steering-wheel {
@@ -459,13 +480,46 @@
                 left: 15px;
             }
             
+            .driver-text {
+                left: 50px;
+                font-size: 12px;
+            }
+            
+            .bus-door {
+                right: 15px;
+                width: 30px;
+            }
+            
+            .front-steps {
+                right: 15px;
+                width: 30px;
+                height: 10px;
+                bottom: -10px;
+            }
+            
             .seats-container {
-                gap: 5px;
+                grid-template-columns: repeat(4, 1fr);
+                grid-gap: 8px 15px;
+                width: 100%;
+            }
+            
+            .seats-container::before {
+                width: 10px;
             }
             
             .vip-badge {
                 font-size: 12px;
                 padding: 3px 10px;
+            }
+            
+            .seat-icon {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .seat-number {
+                font-size: 10px;
+                padding: 1px 4px;
             }
         }
     </style>
@@ -516,7 +570,8 @@
             <div class="driver-area">
                 <div class="steering-wheel"></div>
                 <div class="driver-text">ที่นั่งคนขับ</div>
-                <div class="bus-entrance">ประตู</div>
+                <div class="bus-door">ประตู</div>
+                <div class="front-steps"></div>
             </div>
             
             <div class="seats-container" id="seats-container">
@@ -858,15 +913,21 @@
         const seatsContainer = document.getElementById('seats-container');
         for (let i = 1; i <= 32; i++) {
             const seat = document.createElement('div');
-            seat.className = 'seat';
+            seat.className = 'seat available';
+            
+            const seatIcon = document.createElement('div');
+            seatIcon.className = 'seat-icon';
             
             const seatNumber = document.createElement('div');
             seatNumber.className = 'seat-number';
             seatNumber.textContent = i;
+            
+            seat.appendChild(seatIcon);
             seat.appendChild(seatNumber);
             
             // Set seats as booked or available
             if (isSeatBooked(i)) {
+                seat.classList.remove('available');
                 seat.classList.add('booked');
                 const seatInfo = getBookedSeatInfo(i);
                 
@@ -878,8 +939,10 @@
                 seat.addEventListener('click', () => {
                     if (seat.classList.contains('selected')) {
                         seat.classList.remove('selected');
+                        seat.classList.add('available');
                         selectedSeats = selectedSeats.filter(seatNum => seatNum !== i);
                     } else {
+                        seat.classList.remove('available');
                         seat.classList.add('selected');
                         selectedSeats.push(i);
                     }
@@ -1041,6 +1104,7 @@
                     seatElement.parentNode.replaceChild(newSeat, seatElement);
                     
                     newSeat.classList.remove('selected');
+                    newSeat.classList.remove('available');
                     newSeat.classList.add('booked');
                     
                     // Add event to show passenger info
