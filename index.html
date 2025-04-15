@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจองที่นั่งรถบัสนำเที่ยว VIP</title>
+    <style>
+        body {
+            font-family: 'Sarabun', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2 {
+            color: #1e3a8a;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        .bus {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+            border: 2px solid #cbd5e1;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            position: relative;
+        }
+        
+        .vip-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #f59e0b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .driver-area {
+            width: 100%;
+            height: 70px;
+            background-color: #e2e8f0;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .steering-wheel {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #475569;
+            position: absolute;
+            left: 30px;
+            border: 3px solid #64748b;
+        }
+        
+        .driver-text {
+            font-weight: bold;
+            color: #475569;
+        }
+        
+        .bus-entrance {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            width: 40px;
+            height: 60px;
+            background-color: #cbd5e1;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #475569;
+            transform: translateY(-50%);
+        }
+        
+        .seats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+        
+        .seat {
+            width: 100%;
+            height: 0;
+            padding-bottom: 100%; /* Makes height responsive based on width */
+            border: 2px solid #1e3a8a;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            background-color: #dbeafe;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .seat:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .seat-number {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+        
+        .seat.selected {
+            background-color: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .seat.booked {
+            background-color: #ef4444;
+            color: white;
+            border-color: #dc2626;
+            cursor: not-allowed;
+        }
+        
+        .seat-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .aisle {
+            width: 20px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            padding: 30px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            display: none; /* Hide the form by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background-color: white;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+            width: auto;
+        }
+        
+        .add-seat-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 900;
+            transition: all 0.3s;
+        }
+        
+        .add-seat-btn:hover {
+            background-color: #1e40af;
+            transform: scale(1.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #475569;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f8fafc;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        button {
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #1e40af;
+        }
+        
+        .seat-info {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .seat-type {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+            background-color: #f8fafc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .seat-demo {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        
+        .available {
+            background-color: #dbeafe;
+            border: 1px solid #1e3a8a;
+        }
+        
+        .selected-demo {
+            background-color: #10b981;
+            border: 1px solid #059669;
+        }
+        
+        .booked-demo {
+            background-color: #ef4444;
+            border: 1px solid #dc2626;
+        }
+        
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+        
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 0;
+        }
+        
+        .feature-item {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #0369a1;
+        }
+        
+        .feature-icon {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        /* Tour packages section */
+        .tour-packages {
+            margin-top: 30px;
+            background-color: #f0f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #bae6fd;
+        }
+        
+        .tour-packages h3 {
+            color: #0369a1;
+            margin-top: 0;
+            text-align: center;
+        }
+        
+        .package-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .package-item {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .package-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .package-title {
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-top: 0;
+        }
+        
+        .package-price {
+            color: #10b981;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .package-description {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        
+        /* Media queries for responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .seats-container {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            
+            .feature-list {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .package-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .bus {
+                padding: 10px;
+            }
+            
+            .driver-area {
+                height: 40px;
+                margin-bottom: 10px;
+            }
+            
+            .steering-wheel {
+                width: 25px;
+                height: 25px;
+                left: 15px;
+            }
+            
+            .seats-container {
+                gap: 5px;
+            }
+            
+            .vip-badge {
+                font-size: 12px;
+                padding: 3px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ระบบจองที่นั่งรถบัสนำเที่ยว VIP</h1>
+        <p class="subtitle">รถบัสนำเที่ยวระดับพรีเมียม 32 ที่นั่ง พร้อมสิ่งอำนวยความสะดวกครบครัน</p>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> เก้าอี้ปรับเอนนอน
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> WiFi ฟรี
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> ชาร์จแบตเตอรี่
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> ทีวีส่วนตัว
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> อาหารว่างและเครื่องดื่ม
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span> มัคคุเทศก์มืออาชีพ
+            </div>
+        </div>
+        
+        <div class="seat-info">
+            <div class="seat-type">
+                <div class="seat-demo available"></div>
+                <span>ว่าง</span>
+            </div>
+            <div class="seat-type">
+                <div class="seat-demo selected-demo"></div>
+                <span>เลือก</span>
+            </div>
+            <div class="seat-type">
+                <div class="seat-demo booked-demo"></div>
+                <span>จองแล้ว</span>
+            </div>
+        </div>
+        
+        <div class="bus">
+            <div class="vip-badge">VIP TOUR</div>
+            <div class="driver-area">
+                <div class="steering-wheel"></div>
+                <div class="driver-text">ที่นั่งคนขับ</div>
+                <div class="bus-entrance">ประตู</div>
+            </div>
+            
+            <div class="seats-container" id="seats-container">
+                <!-- Seats will be generated by JavaScript -->
+            </div>
+        </div>
+        
+        <div class="summary" id="booking-summary">
+            <h3>ที่นั่งที่เลือก</h3>
+            <p id="selected-seats-display">ยังไม่ได้เลือก</p>
+            <p>จำนวนที่นั่ง: <span id="seat-count">0</span></p>
+            <p>ราคารวม: <span id="total-price">0</span> บาท</p>
+        </div>
+        
+        <div class="tour-packages">
+            <h3>แพ็คเกจทัวร์ยอดนิยม</h3>
+            <div class="package-list">
+                <div class="package-item">
+                    <h4 class="package-title">เชียงใหม่ 3 วัน 2 คืน</h4>
+                    <p class="package-price">฿3,500/ท่าน</p>
+                    <p class="package-description">เที่ยวดอยอินทนนท์ ดอยสุเทพ และตลาดไนท์บาซาร์ พร้อมที่พัก</p>
+                </div>
+                <div class="package-item">
+                    <h4 class="package-title">ภูเก็ต 4 วัน 3 คืน</h4>
+                    <p class="package-price">฿4,900/ท่าน</p>
+                    <p class="package-description">ดำน้ำเกาะพีพี เกาะเฮ พร้อมที่พักระดับ 4 ดาว และอาหาร 8 มื้อ</p>
+                </div>
+                <div class="package-item">
+                    <h4 class="package-title">เชียงราย-แม่ฮ่องสอน 5 วัน</h4>
+                    <p class="package-price">฿5,500/ท่าน</p>
+                    <p class="package-description">เที่ยวดอยตุง ปาย สะพานประวัติศาสตร์ พร้อมที่พักและอาหาร</p>
+                </div>
+                <div class="package-item">
+                    <h4 class="package-title">อีสานเหนือ 4 วัน</h4>
+                    <p class="package-price">฿4,200/ท่าน</p>
+                    <p class="package-description">เที่ยวอุดรธานี หนองคาย บึงกาฬ พร้อมที่พักและอาหารครบทุกมื้อ</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="overlay" id="form-overlay"></div>
+        
+        <div class="controls" id="booking-form">
+            <button class="close-btn" id="close-form">&times;</button>
+            <h2>ข้อมูลการจอง</h2>
+            <div class="form-group">
+                <label for="name">ชื่อ-นามสกุล</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">อีเมล</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">วันที่เดินทาง</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="route">เส้นทาง/แพ็คเกจ</label>
+                <select id="route" name="route" required>
+                    <option value="">เลือกเส้นทางหรือแพ็คเกจ</option>
+                    <option value="chiangmai">เชียงใหม่ 3 วัน 2 คืน (฿3,500/ท่าน)</option>
+                    <option value="phuket">ภูเก็ต 4 วัน 3 คืน (฿4,900/ท่าน)</option>
+                    <option value="chiangrai">เชียงราย-แม่ฮ่องสอน 5 วัน (฿5,500/ท่าน)</option>
+                    <option value="isan">อีสานเหนือ 4 วัน (฿4,200/ท่าน)</option>
+                    <option value="custom">จองเฉพาะที่นั่ง (฿800/ท่าน)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="special-requests">ความต้องการพิเศษ</label>
+                <input type="text" id="special-requests" name="special-requests" placeholder="เช่น อาหารพิเศษ, ความช่วยเหลือเพิ่มเติม">
+            </div>
+            
+            <div class="summary" id="popup-booking-summary">
+                <h3>สรุปการจอง</h3>
+                <p>ที่นั่งที่เลือก: <span id="popup-selected-seats">ยังไม่ได้เลือก</span></p>
+                <p>จำนวนที่นั่ง: <span id="popup-seat-count">0</span></p>
+                <p>ราคารวม: <span id="popup-total-price">0</span> บาท</p>
+            </div>
+            
+            <button id="book-button" type="button">ยืนยันการจอง</button>
+        </div>
+        
+        <button class="add-seat-btn" id="add-seat-btn">+</button>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedSeats = [];
+        const seatPrice = 800; // Base price per seat
+        
+        // Tour package prices
+        const packagePrices = {
+            "chiangmai": 3500,
+            "phuket": 4900,
+            "chiangrai": 5500,
+            "isan": 4200,
+            "custom": 800
+        };
+        
+        // Sample booked seats with passenger information
+        const bookedSeats = [
+            { seatNum: 2, name: "สมชาย ใจดี", phone: "081-234-5678", email: "somchai@mail.com", date: "2025-04-20", route: "เชียงใหม่ 3 วัน 2 คืน" },
+            { seatNum: 5, name: "สมหญิง รักเดินทาง", phone: "089-876-5432", email: "somying@mail.com", date: "2025-04-20", route: "เชียงใหม่ 3 วัน 2 คืน" },
+            { seatNum: 13, name: "วีระ ชาติกล้า", phone: "062-345-6789", email: "veera@mail.com", date: "2025-04-22", route: "ภูเก็ต 4 วัน 3 คืน" },
+            { seatNum: 17, name: "นารี ดาวสวย", phone: "091-122-3344", email: "naree@mail.com", date: "2025-04-22", route: "ภูเก็ต 4 วัน 3 คืน" },
+            { seatNum: 22, name: "ประเสริฐ มากมี", phone: "088-665-4433", email: "prasert@mail.com", date: "2025-04-25", route: "เชียงราย-แม่ฮ่องสอน 5 วัน" },
+            { seatNum: 25, name: "มะลิ หอมกลิ่น", phone: "063-221-9988", email: "mali@mail.com", date: "2025-04-25", route: "เชียงราย-แม่ฮ่องสอน 5 วัน" },
+            { seatNum: 30, name: "สมศักดิ์ มีชัย", phone: "086-112-3344", email: "somsak@mail.com", date: "2025-04-28", route: "อีสานเหนือ 4 วัน" }
+        ];
+        
+        // Function to check if seat is booked
+        function isSeatBooked(seatNum) {
+            return bookedSeats.some(seat => seat.seatNum === seatNum);
+        }
+        
+        // Function to get booked seat info
+        function getBookedSeatInfo(seatNum) {
+            return bookedSeats.find(seat => seat.seatNum === seatNum);
+        }
+        
+        // Create modal system for popup messages
+        const createModal = (id) => {
+            const modalElement = document.createElement('div');
+            modalElement.id = id;
+            modalElement.style.display = 'none';
+            modalElement.style.position = 'fixed';
+            modalElement.style.zIndex = '1000';
+            modalElement.style.top = '0';
+            modalElement.style.left = '0';
+            modalElement.style.width = '100%';
+            modalElement.style.height = '100%';
+            modalElement.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            modalElement.style.justifyContent = 'center';
+            modalElement.style.alignItems = 'center';
+            
+            const modalContentElement = document.createElement('div');
+            modalContentElement.style.backgroundColor = 'white';
+            modalContentElement.style.padding = '25px';
+            modalContentElement.style.borderRadius = '12px';
+            modalContentElement.style.maxWidth = '400px';
+            modalContentElement.style.width = '80%';
+            modalContentElement.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.25)';
+            modalContentElement.style.position = 'relative';
+            modalContentElement.style.transition = 'all 0.3s';
+            modalContentElement.style.transform = 'scale(0.9)';
+            modalContentElement.style.opacity = '0';
+            
+            const closeButtonElement = document.createElement('button');
+            closeButtonElement.innerHTML = '&times;';
+            closeButtonElement.style.position = 'absolute';
+            closeButtonElement.style.top = '10px';
+            closeButtonElement.style.right = '15px';
+            closeButtonElement.style.backgroundColor = 'transparent';
+            closeButtonElement.style.border = 'none';
+            closeButtonElement.style.fontSize = '24px';
+            closeButtonElement.style.cursor = 'pointer';
+            closeButtonElement.style.color = '#64748b';
+            closeButtonElement.style.width = 'auto';
+            
+            closeButtonElement.onclick = () => {
+                hideModal(modalElement, modalContentElement);
+            };
+            
+            modalContentElement.appendChild(closeButtonElement);
+            modalElement.appendChild(modalContentElement);
+            document.body.appendChild(modalElement);
+            
+            return { modal: modalElement, content: modalContentElement };
+        };
+        
+        const showModal = (modal, content) => {
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                content.style.transform = 'scale(1)';
+                content.style.opacity = '1';
+            }, 10);
+        };
+        
+        const hideModal = (modal, content) => {
+            content.style.transform = 'scale(0.9)';
+            content.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 200);
+        };
+        
+        // Create info modal for displaying passenger information
+        const { modal: passengerModal, content: passengerModalContent } = createModal('passenger-modal');
+        
+        // Create alert modal for notifications
+        const { modal: alertModal, content: alertModalContent } = createModal('alert-modal');
+        
+        // Create success modal for success messages
+        const { modal: successModal, content: successModalContent } = createModal('success-modal');
+        
+        // Show message function for alert popups
+        function showMessage(message, type = 'info') {
+            let modalToUse, contentToUse;
+            
+            // Clear previous content
+            alertModalContent.innerHTML = '';
+            successModalContent.innerHTML = '';
+            
+            // Create icon based on message type
+            const icon = document.createElement('div');
+            icon.style.textAlign = 'center';
+            icon.style.marginBottom = '15px';
+            icon.style.fontSize = '48px';
+            
+            // Create title based on message type
+            const title = document.createElement('h3');
+            title.style.textAlign = 'center';
+            title.style.marginBottom = '20px';
+            
+            // Set message content
+            const content = document.createElement('div');
+            content.style.textAlign = 'center';
+            content.style.marginBottom = '25px';
+            content.innerHTML = message;
+            
+            // Create close button
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'ตกลง';
+            closeBtn.style.backgroundColor = '#1e3a8a';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.padding = '10px 20px';
+            closeBtn.style.borderRadius = '8px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.width = '100%';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.style.transition = 'all 0.3s';
+            
+            closeBtn.onmouseover = () => {
+                closeBtn.style.backgroundColor = '#1e40af';
+            };
+            
+            closeBtn.onmouseout = () => {
+                closeBtn.style.backgroundColor = '#1e3a8a';
+            };
+            
+            if (type === 'error') {
+                modalToUse = alertModal;
+                contentToUse = alertModalContent;
+                icon.innerHTML = '❌';
+                icon.style.color = '#ef4444';
+                title.textContent = 'ข้อผิดพลาด';
+                title.style.color = '#ef4444';
+            } else if (type === 'success') {
+                modalToUse = successModal;
+                contentToUse = successModalContent;
+                icon.innerHTML = '✓';
+                icon.style.color = '#10b981';
+                title.textContent = 'สำเร็จ';
+                title.style.color = '#10b981';
+            } else {
+                modalToUse = alertModal;
+                contentToUse = alertModalContent;
+                icon.innerHTML = 'ℹ️';
+                icon.style.color = '#3b82f6';
+                title.textContent = 'ข้อความแจ้งเตือน';
+                title.style.color = '#3b82f6';
+            }
+            
+            closeBtn.onclick = () => {
+                hideModal(modalToUse, contentToUse);
+            };
+            
+            contentToUse.appendChild(icon);
+            contentToUse.appendChild(title);
+            contentToUse.appendChild(content);
+            contentToUse.appendChild(closeBtn);
+            
+            showModal(modalToUse, contentToUse);
+        }
+        
+        // Show passenger info function
+        function showPassengerInfo(seatInfo) {
+            passengerModalContent.innerHTML = '';
+            
+            const header = document.createElement('h3');
+            header.textContent = `ข้อมูลผู้จองที่นั่งเลขที่ ${seatInfo.seatNum}`;
+            header.style.color = '#1e3a8a';
+            header.style.margin = '0 0 20px 0';
+            header.style.textAlign = 'center';
+            
+            const details = document.createElement('div');
+            details.innerHTML = `
+                <p><strong>ชื่อ-นามสกุล:</strong> ${seatInfo.name}</p>
+                <p><strong>เบอร์โทรศัพท์:</strong> ${seatInfo.phone}</p>
+                <p><strong>อีเมล:</strong> ${seatInfo.email}</p>
+                <p><strong>วันที่เดินทาง:</strong> ${seatInfo.date}</p>
+                <p><strong>แพ็คเกจ:</strong> ${seatInfo.route}</p>
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'ปิด';
+            closeBtn.style.backgroundColor = '#1e3a8a';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.padding = '10px 20px';
+            closeBtn.style.borderRadius = '8px';
+            closeBtn.style.cursor = 'pointer';
+            closeBtn.style.width = '100%';
+            closeBtn.style.fontSize = '16px';
+            closeBtn.style.marginTop = '20px';
+            closeBtn.style.transition = 'all 0.3s';
+            
+            closeBtn.onmouseover = () => {
+                closeBtn.style.backgroundColor = '#1e40af';
+            };
+            
+            closeBtn.onmouseout = () => {
+                closeBtn.style.backgroundColor = '#1e3a8a';
+            };
+            
+            closeBtn.onclick = () => {
+                hideModal(passengerModal, passengerModalContent);
+            };
+            
+            passengerModalContent.appendChild(header);
+            passengerModalContent.appendChild(details);
+            passengerModalContent.appendChild(closeBtn);
+            
+            showModal(passengerModal, passengerModalContent);
+        }
+        
+        // Generate seats
+        const seatsContainer = document.getElementById('seats-container');
+        for (let i = 1; i <= 32; i++) {
+            const seat = document.createElement('div');
+            seat.className = 'seat';
+            
+            const seatNumber = document.createElement('div');
+            seatNumber.className = 'seat-number';
+            seatNumber.textContent = i;
+            seat.appendChild(seatNumber);
+            
+            // Set seats as booked or available
+            if (isSeatBooked(i)) {
+                seat.classList.add('booked');
+                const seatInfo = getBookedSeatInfo(i);
+                
+                // Add click event to show passenger info
+                seat.addEventListener('click', () => {
+                    showPassengerInfo(seatInfo);
+                });
+            } else {
+                seat.addEventListener('click', () => {
+                    if (seat.classList.contains('selected')) {
+                        seat.classList.remove('selected');
+                        selectedSeats = selectedSeats.filter(seatNum => seatNum !== i);
+                    } else {
+                        seat.classList.add('selected');
+                        selectedSeats.push(i);
+                    }
+                    updateSummary();
+                });
+            }
+            
+            seatsContainer.appendChild(seat);
+        }
+        
+        // Handle showing and hiding the booking form
+        const addSeatBtn = document.getElementById('add-seat-btn');
+        const bookingForm = document.getElementById('booking-form');
+        const formOverlay = document.getElementById('form-overlay');
+        const closeFormBtn = document.getElementById('close-form');
+        
+        // Show booking form
+        addSeatBtn.addEventListener('click', () => {
+            if (selectedSeats.length === 0) {
+                showMessage('กรุณาเลือกที่นั่งอย่างน้อย 1 ที่ก่อนทำการจอง', 'error');
+                return;
+            }
+            
+            bookingForm.style.display = 'block';
+            formOverlay.style.display = 'block';
+            
+            // Update the summary in the popup
+            updatePopupSummary();
+        });
+        
+        // Close booking form
+        closeFormBtn.addEventListener('click', () => {
+            bookingForm.style.display = 'none';
+            formOverlay.style.display = 'none';
+        });
+        
+        // Close form when clicking overlay
+        formOverlay.addEventListener('click', () => {
+            bookingForm.style.display = 'none';
+            formOverlay.style.display = 'none';
+        });
+        
+        // Update price based on selected package
+        document.getElementById('route').addEventListener('change', () => {
+            updateSummary();
+            updatePopupSummary();
+        });
+        
+        function getSelectedPackagePrice() {
+            const routeSelect = document.getElementById('route');
+            const selectedRoute = routeSelect.value;
+            
+            if (selectedRoute && packagePrices[selectedRoute]) {
+                return packagePrices[selectedRoute];
+            }
+            
+            return seatPrice; // Default price
+        }
+        
+        function updateSummary() {
+            const selectedSeatsDisplay = document.getElementById('selected-seats-display');
+            const seatCount = document.getElementById('seat-count');
+            const totalPrice = document.getElementById('total-price');
+            const price = getSelectedPackagePrice();
+            
+            if (selectedSeats.length > 0) {
+                // Sort seats for better display
+                selectedSeats.sort((a, b) => a - b);
+                selectedSeatsDisplay.textContent = selectedSeats.join(', ');
+            } else {
+                selectedSeatsDisplay.textContent = 'ยังไม่ได้เลือก';
+            }
+            
+            seatCount.textContent = selectedSeats.length;
+            totalPrice.textContent = (selectedSeats.length * price).toLocaleString();
+        }
+        
+        function updatePopupSummary() {
+            const popupSelectedSeats = document.getElementById('popup-selected-seats');
+            const popupSeatCount = document.getElementById('popup-seat-count');
+            const popupTotalPrice = document.getElementById('popup-total-price');
+            const price = getSelectedPackagePrice();
+            
+            if (selectedSeats.length > 0) {
+                // Sort seats for better display
+                selectedSeats.sort((a, b) => a - b);
+                popupSelectedSeats.textContent = selectedSeats.join(', ');
+            } else {
+                popupSelectedSeats.textContent = 'ยังไม่ได้เลือก';
+            }
+            
+            popupSeatCount.textContent = selectedSeats.length;
+            popupTotalPrice.textContent = (selectedSeats.length * price).toLocaleString();
+        }
+        
+        // Booking button functionality
+        document.getElementById('book-button').addEventListener('click', () => {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const date = document.getElementById('date').value;
+            const routeSelect = document.getElementById('route');
+            const route = routeSelect.value;
+            const routeText = routeSelect.options[routeSelect.selectedIndex]?.text || '';
+            const specialRequests = document.getElementById('special-requests').value;
+            
+            if (!name || !phone || !email || !date || !route) {
+                showMessage('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+                return;
+            }
+            
+            if (selectedSeats.length === 0) {
+                showMessage('กรุณาเลือกที่นั่งอย่างน้อย 1 ที่', 'error');
+                return;
+            }
+            
+            const price = getSelectedPackagePrice();
+            
+            // In a real application, this would send data to a server
+            let confirmMessage = `
+                <div style="text-align: left;">
+                    <p><strong>ชื่อ:</strong> ${name}</p>
+                    <p><strong>เบอร์โทร:</strong> ${phone}</p>
+                    <p><strong>ที่นั่ง:</strong> ${selectedSeats.join(', ')}</p>
+                    <p><strong>วันที่:</strong> ${date}</p>
+                    <p><strong>แพ็คเกจ:</strong> ${routeText}</p>
+                    <p><strong>ราคารวม:</strong> ${(selectedSeats.length * price).toLocaleString()} บาท</p>
+                    ${specialRequests ? `<p><strong>ความต้องการพิเศษ:</strong> ${specialRequests}</p>` : ''}
+                </div>
+            `;
+            
+            showMessage(confirmMessage, 'success');
+            
+            // After success message is closed, complete the booking
+            successModal.addEventListener('click', function completeBooking() {
+                // Create new booked seat entries
+                const newBookedSeats = selectedSeats.map(seatNum => {
+                    return {
+                        seatNum: seatNum,
+                        name: name,
+                        phone: phone,
+                        email: email,
+                        date: date,
+                        route: routeText
+                    };
+                });
+                
+                // Add to booked seats array
+                bookedSeats.push(...newBookedSeats);
+                
+                // Mark the selected seats as booked
+                selectedSeats.forEach(seatNum => {
+                    const seats = document.querySelectorAll('.seat');
+                    const seatElement = seats[seatNum - 1];
+                    const seatInfo = getBookedSeatInfo(seatNum);
+                    
+                    // Remove previous events
+                    const newSeat = seatElement.cloneNode(true);
+                    seatElement.parentNode.replaceChild(newSeat, seatElement);
+                    
+                    newSeat.classList.remove('selected');
+                    newSeat.classList.add('booked');
+                    
+                    // Add event to show passenger info
+                    newSeat.addEventListener('click', () => {
+                        showPassengerInfo(seatInfo);
+                    });
+                });
+                
+                // Reset selection
+                selectedSeats = [];
+                updateSummary();
+                
+                // Reset form
+                document.getElementById('name').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('date').value = '';
+                document.getElementById('route').value = '';
+                document.getElementById('special-requests').value = '';
+                
+                // Hide form after booking
+                bookingForm.style.display = 'none';
+                formOverlay.style.display = 'none';
+                
+                // Remove this event listener after it's used once
+                successModal.removeEventListener('click', completeBooking);
+            }, { once: true });
+        });
+        
+        // Initial update
+        updateSummary();
+    </script>
+</body>
+</html>
